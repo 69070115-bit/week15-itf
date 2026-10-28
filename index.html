@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7f4">
+  <title>Food Picker ITF — วันนี้กินอะไรดี?</title>
+  <style>
+    :root {
+      --bg:#f7f7f4; --surface:#fff; --text:#20231f; --muted:#777d75;
+      --line:#e8e9e3; --accent:#315b45; --accent-hover:#244735; --soft:#edf3ed;
+      --shadow:0 18px 50px rgba(28,42,31,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,"Noto Sans Thai",Tahoma,sans-serif;line-height:1.6}
+    button{font:inherit}
+    .page{width:min(1080px,calc(100% - 36px));margin:0 auto}
+    header{display:flex;justify-content:space-between;align-items:center;padding:26px 0;border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.4px}
+    .brand-mark{width:38px;height:38px;border-radius:12px;background:var(--accent);display:grid;place-items:center;color:#fff;font-size:20px}
+    .brand small{display:block;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:1.5px}
+    .top-note{color:var(--muted);font-size:13px}
+    .intro{text-align:center;padding:56px 0 34px}
+    .eyebrow{display:inline-block;background:var(--soft);color:var(--accent);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:1px}
+    h1{margin:17px 0 8px;font-size:clamp(32px,5vw,50px);line-height:1.2;letter-spacing:-1.7px}
+    .intro p{color:var(--muted);margin:0 auto;max-width:540px}
+    .main-card{display:grid;grid-template-columns:1.05fr 1fr;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);max-width:880px;margin:0 auto}
+    .photo-wrap{min-height:360px;background:#e9e9e1;position:relative}
+    .photo-wrap img{width:100%;height:100%;min-height:360px;object-fit:cover;display:block}
+    .photo-tag{position:absolute;left:18px;top:18px;background:rgba(255,255,255,.94);color:var(--accent);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800}
+    .dish-info{padding:clamp(24px,4vw,42px);display:flex;flex-direction:column;justify-content:center}
+    .mini-label{color:var(--muted);font-size:12px;letter-spacing:1.6px;text-transform:uppercase;font-weight:800}
+    h2{font-size:clamp(27px,3vw,36px);margin:8px 0 12px;line-height:1.3;letter-spacing:-.7px}
+    .description{color:var(--muted);margin:0 0 24px;font-size:15px}
+    .price-row{display:flex;align-items:baseline;gap:8px;padding:17px 0;border-top:1px solid var(--line)}
+    .price{font-size:29px;font-weight:800;color:var(--accent);letter-spacing:-.8px}
+    .price-caption{color:var(--muted);font-size:12px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .primary,.secondary{border:0;border-radius:13px;padding:13px 18px;cursor:pointer;transition:transform .15s ease,background .15s ease;font-weight:750}
+    .primary{color:white;background:var(--accent);flex:1;min-width:170px}
+    .primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+    .secondary{color:var(--text);background:#f0f1ec}
+    .secondary:hover{background:#e7e9e1}
+    button:focus-visible{outline:3px solid #9ab8a2;outline-offset:3px}
+    .result-message{min-height:24px;margin-top:10px;color:var(--muted);font-size:12px}
+    .section-heading{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:54px 0 18px}
+    .section-heading h3{margin:0;font-size:22px;letter-spacing:-.4px}
+    .section-heading p{margin:0;color:var(--muted);font-size:13px}
+    .menu-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;padding-bottom:56px}
+    .menu-item{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;text-align:left;padding:0;color:inherit;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .menu-item:hover{transform:translateY(-3px);box-shadow:0 12px 25px rgba(28,42,31,.07)}
+    .menu-item.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+    .menu-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#e9e9e1}
+    .item-body{padding:13px 14px 15px}
+    .item-name{font-weight:800;font-size:14px}
+    .item-price{color:var(--accent);font-weight:800;font-size:13px;margin-top:4px}
+    footer{border-top:1px solid var(--line);padding:22px 0 30px;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
+    .fade-in{animation:fade .35s ease}
+    @keyframes fade{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:900px){.menu-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:760px){.intro{padding:42px 0 26px}.main-card{grid-template-columns:1fr}.photo-wrap,.photo-wrap img{min-height:240px;max-height:310px}.dish-info{padding:25px}.menu-grid{grid-template-columns:repeat(2,1fr);gap:12px}.section-heading{align-items:start;flex-direction:column;margin-top:40px}.top-note{display:none}}
+    @media(max-width:380px){.page{width:min(100% - 24px,1080px)}.menu-grid{gap:9px}.item-body{padding:11px}}
+  </style>
+</head>
+<body>
+  <header class="page">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">✳</div><div>Food Picker <small>ITF · ASSIGNMENT</small></div></div>
+    <div class="top-note">A little help with your next meal.</div>
+  </header>
+  <main class="page">
+    <section class="intro">
+      <span class="eyebrow">YOUR DAILY FOOD HELPER</span>
+      <h1>วันนี้กินอะไรดี?</h1>
+      <p>ไม่ต้องคิดนาน ให้เราช่วยเลือกเมนูอร่อย ๆ สำหรับมื้อนี้</p>
+    </section>
+    <section class="main-card" aria-live="polite">
+      <div class="photo-wrap">
+        <img id="dishImage" src="images/ramen.jpg" alt="รูปภาพอาหาร">
+        <span class="photo-tag" id="dishCategory">อาหารญี่ปุ่น</span>
+      </div>
+      <div class="dish-info" id="dishInfo">
+        <span class="mini-label">TODAY'S PICK</span>
+        <h2 id="dishName">ราเมน</h2>
+        <p class="description" id="dishDescription">เส้นราเมนเหนียวนุ่มในน้ำซุปเข้มข้น พร้อมหมูชาชูและต้นหอม</p>
+        <div class="price-row"><span class="price" id="dishPrice">฿129</span><span class="price-caption">ราคาโดยประมาณ / จาน</span></div>
+        <div class="actions">
+          <button class="primary" id="randomButton" type="button">✦ สุ่มเมนูให้หน่อย</button>
+          <button class="secondary" id="copyButton" type="button">คัดลอกชื่อ</button>
+        </div>
+        <div class="result-message" id="message" role="status">พร้อมแล้ว! กดปุ่มเพื่อสุ่มเมนูใหม่</div>
+      </div>
+    </section>
+    <section>
+      <div class="section-heading">
+        <div><h3>เมนูทั้งหมด</h3><p>มี 5 เมนูจากรูปภาพที่คุณส่งมา</p></div>
+        <p id="menuCount">5 เมนูให้เลือก</p>
+      </div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </section>
+  </main>
+  <footer class="page"><span>Food Picker ITF</span><span>ทำให้การเลือกมื้อถัดไปง่ายขึ้น ♡</span></footer>
+  <script>
+    // เมนูทั้ง 5 รายการใช้รูปภาพที่ผู้ใช้ส่งมาในโฟลเดอร์ images
+    const foods = [
+      {
+        name: "ราเมน", category: "อาหารญี่ปุ่น", price: 129,
+        description: "เส้นราเมนเหนียวนุ่มในน้ำซุปเข้มข้น พร้อมหมูชาชูและต้นหอม",
+        image: "images/ramen.jpg"
+      },
+      {
+        name: "พิซซ่า", category: "อาหารอิตาเลียน", price: 189,
+        description: "พิซซ่าหน้าชีสและซอสมะเขือเทศบนแป้งอบหอมกรุ่น โรยใบโหระพา",
+        image: "images/pizza.jpg"
+      },
+      {
+        name: "ซูชิ", category: "อาหารญี่ปุ่น", price: 150,
+        description: "ซูชิหลากหน้าพร้อมข้าวญี่ปุ่น ปลาดิบ และเครื่องเคียง",
+        image: "images/sushi.jpg"
+      },
+      {
+        name: "ข้าวกะเพรา", category: "อาหารไทย", price: 60,
+        description: "ข้าวสวยร้อน ๆ เสิร์ฟพร้อมผัดกะเพรารสจัดจ้าน หอมใบกะเพรา",
+        image: "images/kaprao.jpg"
+      },
+      {
+        name: "ผัดไทยกุ้งสด", category: "อาหารไทย", price: 80,
+        description: "เส้นผัดไทยคลุกซอสกลมกล่อม พร้อมกุ้ง ถั่วงอก กุยช่าย และมะนาว",
+        image: "images/padthai.jpg"
+      }
+    ];
+
+    const dishImage = document.getElementById("dishImage");
+    const dishName = document.getElementById("dishName");
+    const dishCategory = document.getElementById("dishCategory");
+    const dishDescription = document.getElementById("dishDescription");
+    const dishPrice = document.getElementById("dishPrice");
+    const dishInfo = document.getElementById("dishInfo");
+    const message = document.getElementById("message");
+    const menuGrid = document.getElementById("menuGrid");
+    let currentIndex = 0;
+
+    function showFood(index, note) {
+      currentIndex = index;
+      const food = foods[index];
+      dishImage.src = food.image;
+      dishImage.alt = "รูปภาพเมนู" + food.name;
+      dishName.textContent = food.name;
+      dishCategory.textContent = food.category;
+      dishDescription.textContent = food.description;
+      dishPrice.textContent = "฿" + food.price;
+      dishInfo.classList.remove("fade-in");
+      void dishInfo.offsetWidth;
+      dishInfo.classList.add("fade-in");
+      message.textContent = note || "เลือกเมนูนี้แล้ว ขอให้อร่อยนะ!";
+      document.querySelectorAll(".menu-item").forEach((item, i) => {
+        item.classList.toggle("active", i === index);
+        item.setAttribute("aria-pressed", i === index ? "true" : "false");
+      });
+    }
+
+    function renderMenu() {
+      menuGrid.innerHTML = "";
+      foods.forEach((food, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "menu-item" + (index === currentIndex ? " active" : "");
+        button.setAttribute("aria-label", "เลือกเมนู " + food.name);
+        button.setAttribute("aria-pressed", index === currentIndex ? "true" : "false");
+        const img = document.createElement("img");
+        img.src = food.image;
+        img.alt = food.name;
+        img.loading = "lazy";
+        const body = document.createElement("div");
+        body.className = "item-body";
+        const name = document.createElement("div");
+        name.className = "item-name";
+        name.textContent = food.name;
+        const price = document.createElement("div");
+        price.className = "item-price";
+        price.textContent = "฿" + food.price;
+        body.append(name, price);
+        button.append(img, body);
+        button.addEventListener("click", () => showFood(index));
+        menuGrid.appendChild(button);
+      });
+      document.getElementById("menuCount").textContent = foods.length + " เมนูให้เลือก";
+    }
+
+    document.getElementById("randomButton").addEventListener("click", () => {
+      let nextIndex = currentIndex;
+      while (foods.length > 1 && nextIndex === currentIndex) {
+        nextIndex = Math.floor(Math.random() * foods.length);
+      }
+      showFood(nextIndex, "สุ่มได้แล้ว! วันนี้ลองกิน" + foods[nextIndex].name + "กันไหม");
+    });
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(dishName.textContent);
+        message.textContent = "คัดลอกชื่อเมนูแล้ว: " + dishName.textContent;
+      } catch (error) {
+        message.textContent = "ชื่อเมนูของคุณคือ: " + dishName.textContent;
+      }
+    });
+
+    renderMenu();
+    showFood(0, "พร้อมแล้ว! กดปุ่มเพื่อสุ่มเมนูใหม่");
+  </script>
+</body>
+</html>
